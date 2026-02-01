@@ -1,11 +1,14 @@
-// const express = require('express');
-// const { projectAdd, projectGet } = require('../controllers/admin/dashboardController');
-// const { projectAddRequest } = require('../middlewares/validateRequest');
+const express = require("express");
+const {
+  registerEmployee,
+  getEmployeeRolesAndPositions,
+} = require("../controllers/admin/employeeController");
 
-// const adminRouter = express.Router();
+const adminRouter = express.Router();
 
-// // Registration route
-// adminRouter.post('/project', projectAddRequest, projectAdd);
-// adminRouter.get('/projects', projectGet);
+// Employee registration
+adminRouter.post("/employee/register", registerEmployee);
+// Get allowed roles and positions
+adminRouter.get("/employee/roles-positions", getEmployeeRolesAndPositions);
 
-// module.exports = adminRouter; 
+module.exports = adminRouter;

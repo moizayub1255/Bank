@@ -1,28 +1,28 @@
-import React, { useEffect } from 'react'
-import { AdminHeader } from '../components'
-import { Outlet, useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts';
+import React, { useEffect } from "react";
+import { AdminHeader } from "../components";
+import { Outlet, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts";
 
 const AdminLayout = () => {
-    const { currentUser } = useAuth();
-    const navigate = useNavigate();
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        if (!currentUser || currentUser.role !== "admin") {
-            navigate("/");
-        }
-    }, [currentUser, navigate]);
-
+  useEffect(() => {
     if (!currentUser || currentUser.role !== "admin") {
-        return null; // Prevent rendering before redirect
+      navigate("/");
     }
+  }, [currentUser, navigate]);
 
-    return (
-        <div>
-            {/* <AdminHeader /> */}
-            <Outlet />
-        </div>
-    )
-}
+  if (!currentUser || currentUser.role !== "admin") {
+    return null; // Prevent rendering before redirect
+  }
 
-export default AdminLayout
+  return (
+    <div>
+      <AdminHeader />
+      <Outlet />
+    </div>
+  );
+};
+
+export default AdminLayout;
