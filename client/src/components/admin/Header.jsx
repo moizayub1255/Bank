@@ -1,14 +1,14 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts";
+import { useAuth, useLogout } from "../../contexts";
 
 const Header = () => {
   const { currentUser } = useAuth();
+  const { logout } = useLogout();
   const navigate = useNavigate();
 
-  function LogOut() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("accountToken");
+  function handleLogOut() {
+    logout();
     navigate("/");
   }
 
@@ -19,8 +19,8 @@ const Header = () => {
           Welcome {currentUser?.name || "Admin"}
         </div>
         <button
-          className="bg-green px-10 py-3 text-xl font-main rounded-3xl cursor-pointer text-black"
-          onClick={LogOut}
+          className="bg-green px-10 py-3 text-xl font-main rounded-3xl cursor-pointer text-black hover:bg-green/80 transition-all"
+          onClick={handleLogOut}
         >
           Logout
         </button>

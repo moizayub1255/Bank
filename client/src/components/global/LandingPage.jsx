@@ -1,11 +1,21 @@
 import React, { useState, useEffect } from "react";
 import images from "../../assets/images";
 import { HiArrowUpRight } from "react-icons/hi2";
-import { useAuth } from "./../../contexts";
-import { Link } from "react-router-dom";
+import { useAuth, useLogout } from "./../../contexts";
+import { Link, useNavigate } from "react-router-dom";
+import { LiaPowerOffSolid } from "react-icons/lia";
 
 const LandingPage = () => {
   const { currentUser } = useAuth();
+  const { logout } = useLogout();
+  const navigate = useNavigate();
+  const [showLogoutMenu, setShowLogoutMenu] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    setShowLogoutMenu(false);
+    navigate("/");
+  };
 
   return (
     <div className=" bg-dark w-full h-full p-16 px-32 text-white ">
@@ -65,19 +75,50 @@ const LandingPage = () => {
               </Link>
             </div>
           )}
-          <div className=" w-full max-w-72 flex justify-end">
+          <div className=" w-full max-w-72 flex justify-end items-center gap-4">
             {currentUser ? (
-              <Link
-                to={`${currentUser?.role === "user" ? "/user/dashboard" : currentUser?.role === "employee" ? "/employee/profile" : "/admin/dashboard"}`}
-                className=" flex justify-between items-center border-2 border-green rounded-full hover:pr-4 group transition-all duration-300 "
-              >
-                <div className="text-xl group-hover:mr-2 font-main px-8 py-3 rounded-3xl bg-green text-black transition-all duration-300  ">
-                  {currentUser.name}
+              <>
+                <Link
+                  to={`${currentUser?.role === "user" ? "/user/dashboard" : currentUser?.role === "employee" ? "/employee/profile" : "/admin/dashboard"}`}
+                  className=" flex justify-between items-center border-2 border-green rounded-full hover:pr-4 group transition-all duration-300 "
+                >
+                  <div className="text-xl group-hover:mr-2 font-main px-8 py-3 rounded-3xl bg-green text-black transition-all duration-300  ">
+                    {currentUser.name}
+                  </div>
+                  <span className=" text-green text-2xl absolute transition-all duration-300 group-hover:static ">
+                    <HiArrowUpRight />
+                  </span>
+                </Link>
+                <div className="relative">
+                  <button
+                    onClick={() => setShowLogoutMenu(!showLogoutMenu)}
+                    className="text-2xl p-2 bg-green text-black rounded-full hover:bg-green/80 transition-all duration-300"
+                  >
+                    <LiaPowerOffSolid />
+                  </button>
+                  {showLogoutMenu && (
+                    <div className="absolute right-0 top-12 bg-black p-4 rounded-lg border border-green min-w-[200px] z-50">
+                      <p className="text-sm mb-3">
+                        Logout from {currentUser.name}?
+                      </p>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setShowLogoutMenu(false)}
+                          className="flex-1 bg-white/20 text-white px-3 py-1.5 rounded-full text-sm hover:bg-white/30 transition"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleLogout}
+                          className="flex-1 bg-green text-black px-3 py-1.5 rounded-full text-sm font-semibold hover:bg-green/80 transition"
+                        >
+                          Logout
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <span className=" text-green text-2xl absolute transition-all duration-300 group-hover:static ">
-                  <HiArrowUpRight />
-                </span>
-              </Link>
+              </>
             ) : (
               <Link
                 to="/register"

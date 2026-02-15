@@ -186,3 +186,83 @@ exports.getUserNameByEmail = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+// Get all users with their account details
+exports.getAllUsers = async (req, res) => {
+  try {
+    const { Account } = require("../../models/user/Account");
+    
+    // Get all users from Authentication collection (excluding employees and admins)
+    const users = await Authentication.find({ role: "user" }).select("-password");
+    
+    if (!users || users.length === 0) {
+      return res.status(200).json({ success: true, data: [] });
+    }
+
+    // Fetch account details for each user
+    const usersWithBalance = await Promise.all(
+      users.map(async (user) => {
+        const account = await Account.findOne({ email: user.email });
+        return {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          accountno: account?.accountno || "N/A",
+          balance: account?.balance || 0,
+        };
+      })
+    );
+
+    res.status(200).json({ success: true, data: usersWithBalance });
+  } catch (error) {
+    console.error("Error in getAllUsers:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Search users by name or email
+exports.searchUsers = async (req, res) => {
+  try {
+    const { query } = req.query;
+    const { Account } = require("../../models/user/Account");
+
+    if (!query || query.trim() === "") {
+      return res.status(400).json({ success: false, message: "Search query is required" });
+    }
+
+    // Search for users by name or email (case-insensitive)
+    const searchRegex = new RegExp(query, "i");
+    const users = await Authentication.find({
+      role: "user",
+      $or: [
+        { name: searchRegex },
+        { email: searchRegex }
+      ]
+    }).select("-password");
+
+    if (!users || users.length === 0) {
+      return res.status(200).json({ success: true, data: [] });
+    }
+
+    // Fetch account details for each user
+    const usersWithBalance = await Promise.all(
+      users.map(async (user) => {
+        const account = await Account.findOne({ email: user.email });
+        return {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          accountno: account?.accountno || "N/A",
+          balance: account?.balance || 0,
+        };
+      })
+    );
+
+    res.status(200).json({ success: true, data: usersWithBalance });
+  } catch (error) {
+    console.error("Error in searchUsers:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

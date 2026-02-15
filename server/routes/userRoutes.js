@@ -13,6 +13,8 @@ const {
   getUserNameByEmail,
   getAuthData,
   updateUserProfile,
+  getAllUsers,
+  searchUsers,
 } = require("../controllers/global/Authentication");
 
 const { AccountRequest } = require("../middlewares/user/Account");
@@ -34,6 +36,7 @@ const {
   getAllTransactions,
   getTransactionById,
   getTransactionsByAccountNo,
+  getTransactionsByUserId,
 } = require("../controllers/user/Transactions");
 const { ValidateLoanApplication } = require("../middlewares/user/Loan");
 const {
@@ -42,6 +45,12 @@ const {
   getLoanApplicationByAccountNo,
   deleteLoanApplication,
 } = require("../controllers/user/Loan");
+const {
+  createMobilePayment,
+  getAllMobilePayments,
+  getMobilePaymentsByAccountNo,
+  getMobilePaymentById,
+} = require("../controllers/user/MobilePayment");
 const {
   createNotification,
   getAllNotifications,
@@ -56,6 +65,8 @@ userRouter.post("/register", registerRequest, registerUser);
 userRouter.get("/register/data/:email", getAuthData);
 userRouter.put("/register/update/:email", updateUserProfile);
 userRouter.post("/signin", signinRequest, signinUser);
+userRouter.get("/all", getAllUsers);
+userRouter.get("/search", searchUsers);
 
 // Face Authentication routes (Added multer middleware)
 // userRouter.post('/register-face', upload.single('image'), registerFace);
@@ -78,6 +89,7 @@ userRouter.delete("/deposit/:accountno", userDeposit.deleteDeposit);
 
 userRouter.post("/transaction", validateTransaction, createTransaction);
 userRouter.get("/transactions", getAllTransactions);
+userRouter.get("/transactions/user/:userId", getTransactionsByUserId);
 userRouter.get("/transaction/id/:id", getTransactionById);
 userRouter.get("/transaction/accountno/:accountno", getTransactionsByAccountNo);
 
@@ -85,6 +97,12 @@ userRouter.post("/loan/apply/", ValidateLoanApplication, createLoanApplication);
 userRouter.get("/loan/applications/", getAllLoanApplications);
 userRouter.get("/loan/application/:accountno", getLoanApplicationByAccountNo);
 userRouter.delete("/loan/application/:accountno", deleteLoanApplication);
+
+// Mobile Payment routes
+userRouter.post("/transactions/mobile-pay", createMobilePayment);
+userRouter.get("/mobile-payments", getAllMobilePayments);
+userRouter.get("/mobile-payments/:accountno", getMobilePaymentsByAccountNo);
+userRouter.get("/mobile-payment/:id", getMobilePaymentById);
 
 userRouter.post(
   "/notification/store/",

@@ -1,13 +1,17 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const loanApplicationSchema = new mongoose.Schema({
+const loanApplicationSchema = new mongoose.Schema(
+  {
+    // User Reference
+    userId: { type: String, required: true },
+    accountno: { type: String, required: true },
+
     // Personal Information
     fullname: { type: String, required: true },
     dob: { type: String, required: true }, // Date stored as String
     gender: { type: String, required: true },
     contact: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    accountno: { type: String, required: true, },
+    email: { type: String, required: true },
 
     // Employment Information
     employmenttype: { type: String, required: true },
@@ -17,12 +21,24 @@ const loanApplicationSchema = new mongoose.Schema({
 
     // Loan Details
     loanamount: { type: String, required: true },
+    duration: { type: Number, required: true }, // Duration in months
     loanpurpose: { type: String, required: true },
 
-    // Submission Date (optional, if needed)
-    submittedat: { type: String, default: new Date().toISOString() }
-});
+    // Status and Tracking
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
+  },
+  {
+    timestamps: true, // Adds createdAt and updatedAt fields
+  },
+);
 
-const LoanApplication = mongoose.model('LoanApplication', loanApplicationSchema);
+const LoanApplication = mongoose.model(
+  "LoanApplication",
+  loanApplicationSchema,
+);
 
-module.exports = LoanApplication; 
+module.exports = LoanApplication;
