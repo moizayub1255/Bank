@@ -44,6 +44,8 @@ const {
   getAllLoanApplications,
   getLoanApplicationByAccountNo,
   deleteLoanApplication,
+  approveLoanApplication,
+  rejectLoanApplication,
 } = require("../controllers/user/Loan");
 const {
   createMobilePayment,
@@ -60,13 +62,28 @@ const {
 } = require("../controllers/user/Notification");
 const { NotificationRequest } = require("../middlewares/user/Notification");
 
-// Registration route
+const jwtAuth = require("../middlewares/global/jwtAuth");
+const requireRole = require("../middlewares/global/requireRole");
+
+// Registration and public routes
 userRouter.post("/register", registerRequest, registerUser);
 userRouter.get("/register/data/:email", getAuthData);
 userRouter.put("/register/update/:email", updateUserProfile);
 userRouter.post("/signin", signinRequest, signinUser);
-userRouter.get("/all", getAllUsers);
-userRouter.get("/search", searchUsers);
+
+// Protect user-only routes
+userRouter.get(
+  "/all",
+  jwtAuth,
+  requireRole("user", "employee", "admin"),
+  getAllUsers,
+);
+userRouter.get(
+  "/search",
+  jwtAuth,
+  requireRole("user", "employee", "admin"),
+  searchUsers,
+);
 
 // Face Authentication routes (Added multer middleware)
 // userRouter.post('/register-face', upload.single('image'), registerFace);
@@ -97,6 +114,9 @@ userRouter.post("/loan/apply/", ValidateLoanApplication, createLoanApplication);
 userRouter.get("/loan/applications/", getAllLoanApplications);
 userRouter.get("/loan/application/:accountno", getLoanApplicationByAccountNo);
 userRouter.delete("/loan/application/:accountno", deleteLoanApplication);
+// Approve/Reject endpoints
+userRouter.patch("/loan/application/:id/approve", approveLoanApplication);
+userRouter.patch("/loan/application/:id/reject", rejectLoanApplication);
 
 // Mobile Payment routes
 userRouter.post("/transactions/mobile-pay", createMobilePayment);

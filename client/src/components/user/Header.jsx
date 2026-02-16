@@ -3,8 +3,7 @@ import { HiArrowLeft, HiArrowRight } from "react-icons/hi2";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { IoNotificationsOutline } from "react-icons/io5";
 import UserNavigation from "../../database/user/Navigation";
-import { RiSettings4Fill } from "react-icons/ri";
-import { RiCloseLargeLine } from "react-icons/ri";
+// import { RiSettings4Fill } from "react-icons/ri";
 import { LiaPowerOffSolid } from "react-icons/lia";
 import formattedTime from "../../utils/Time";
 import axios from "axios";
@@ -98,20 +97,22 @@ const Header = () => {
           </Link>
         </div>
         <div className=" flex space-x-4 items-center text-sm  font-halo">
-          {UserNavigation.map((Data, index) => (
-            <NavLink
-              to={Data.link}
-              key={index}
-              className={({ isActive }) =>
-                isActive
-                  ? " overflow-hidden cursor-pointer  text-green transition-all duration-300"
-                  : "group overflow-hidden cursor-pointer hover:text-green transition-all duration-300 "
-              }
-            >
-              <div>{Data.title}</div>
-              <div className="h-[1px] w-full bg-green -translate-x-[110%]  group-hover:translate-x-0 transi duration-300  "></div>
-            </NavLink>
-          ))}
+          {UserNavigation.filter((Data) => Data.title !== "Transactions").map(
+            (Data, index) => (
+              <NavLink
+                to={Data.link}
+                key={index}
+                className={({ isActive }) =>
+                  isActive
+                    ? " overflow-hidden cursor-pointer  text-green transition-all duration-300"
+                    : "group overflow-hidden cursor-pointer hover:text-green transition-all duration-300 "
+                }
+              >
+                <div>{Data.title}</div>
+                <div className="h-[1px] w-full bg-green -translate-x-[110%]  group-hover:translate-x-0 transi duration-300  "></div>
+              </NavLink>
+            ),
+          )}
         </div>
       </div>
       <div className=" flex items-center">
@@ -135,13 +136,7 @@ const Header = () => {
               ""
             )}
           </div>
-          <div
-            className="text-2xl p-3 hover:bg-[#ffffff20]  cursor-pointer transition-all duration-300 rounded-full text-white  "
-            onClick={() => showOptions(true)}
-          >
-            {" "}
-            <RiSettings4Fill />
-          </div>
+          {/* Settings icon removed */}
           <div
             className="text-3xl p-2 ml-6 bg-green  cursor-pointer transition-all duration-300 rounded-full text-black  "
             onClick={() => setLogoutConfirm(true)}
@@ -171,19 +166,7 @@ const Header = () => {
             </div>
           </div>
         )}
-        <div
-          className={`${options ? "right-0" : "right-[-100%]"} shadow-lg bg-[#00000020] backdrop-blur-2xl   transition-transform duration-300 w-80 fixed p-6 py-10  top-0  h-full z-30 `}
-        >
-          <div className="flex justify-between items-center ">
-            <div className="font-sfpro  text-2xl ">Settings</div>
-            <button
-              onClick={() => showOptions(false)}
-              className="text-base p-2 rounded-full hover:bg-[#ffffff20] transition-all duration-300 "
-            >
-              <RiCloseLargeLine />
-            </button>
-          </div>
-        </div>
+        {/* Settings panel removed */}
         <div
           className={`${notifications ? "right-0" : "right-[-100%]"} bg-[#00000020] backdrop-blur-2xl  oveflow-scroll transition-transform duration-300 w-80 fixed p-6 py-10  top-0  h-full z-30 `}
         >
@@ -193,7 +176,7 @@ const Header = () => {
               onClick={() => showNotifications(false)}
               className="text-base p-2 rounded-full hover:bg-[#ffffff20] transition-all duration-300 "
             >
-              <RiCloseLargeLine />
+              Close
             </button>
           </div>
           <div

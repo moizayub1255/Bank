@@ -9,7 +9,9 @@ const UserLayout = () => {
   const navigate = useNavigate();
   const [currentFace, setCurrentFace] = useState(null);
 
-  if (!currentUser || currentUser.role !== "user") {
+  if (!currentUser) {
+    navigate("/signin");
+  } else if (currentUser.role !== "user") {
     navigate("/");
   }
 

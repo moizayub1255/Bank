@@ -78,6 +78,7 @@ exports.registerUser = async (req, res) => {
       email: account.email,
       accountno: account.accountno,
       balance: account.balance,
+      userId: user._id ? user._id.toString() : undefined, // Ensure userId is present for frontend
     };
     const accountToken = require("jsonwebtoken").sign(
       accountTokenPayload,
@@ -160,8 +161,65 @@ exports.signinUser = async (req, res) => {
       return res.status(401).json({ message: "Invalid password" });
     }
 
-    // return res.status(200).json({ message: 'Success', user });
-    sendToken(user, 200, res);
+    // Generate user token
+    const userTokenPayload = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      dob: user.dob,
+      gender: user.gender,
+      role: user.role,
+      position: user.position,
+      img: user.img,
+    };
+    const token = require("jsonwebtoken").sign(
+      userTokenPayload,
+      process.env.JWT_SECRET || "defaultSecretKey",
+      { expiresIn: "30d" },
+    );
+
+    // Get account for the user
+    const { Account } = require("../../models/user/Account");
+    let account = await Account.findOne({ email: user.email });
+    if (!account) {
+      // Generate unique account number
+      let isUnique = false;
+      let accountNo;
+      while (!isUnique) {
+        accountNo = Math.floor(
+          100000000000 + Math.random() * 900000000000,
+        ).toString();
+        const existingAccount = await Account.findOne({ accountno: accountNo });
+        if (!existingAccount) isUnique = true;
+      }
+      account = await Account.create({
+        email: user.email,
+        accountno: accountNo,
+        balance: 0,
+      });
+    }
+
+    // Generate account token
+    const accountTokenPayload = {
+      email: account.email,
+      accountno: account.accountno,
+      balance: account.balance,
+      userId: user._id ? user._id.toString() : undefined, // Ensure userId is present for frontend
+    };
+    const accountToken = require("jsonwebtoken").sign(
+      accountTokenPayload,
+      process.env.JWT_SECRET || "defaultSecretKey",
+      { expiresIn: "30d" },
+    );
+
+    // Send both tokens in response
+    res.status(200).json({
+      success: true,
+      token,
+      accountToken,
+      data: { ...userTokenPayload, accountno: account.accountno },
+    });
   } catch (error) {
     console.error("Error in addUser:", error);
     res.status(500).json({ message: "Server error", error: error.message });
@@ -191,10 +249,12 @@ exports.getUserNameByEmail = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
   try {
     const { Account } = require("../../models/user/Account");
-    
+
     // Get all users from Authentication collection (excluding employees and admins)
-    const users = await Authentication.find({ role: "user" }).select("-password");
-    
+    const users = await Authentication.find({ role: "user" }).select(
+      "-password",
+    );
+
     if (!users || users.length === 0) {
       return res.status(200).json({ success: true, data: [] });
     }
@@ -211,7 +271,7 @@ exports.getAllUsers = async (req, res) => {
           accountno: account?.accountno || "N/A",
           balance: account?.balance || 0,
         };
-      })
+      }),
     );
 
     res.status(200).json({ success: true, data: usersWithBalance });
@@ -228,17 +288,16 @@ exports.searchUsers = async (req, res) => {
     const { Account } = require("../../models/user/Account");
 
     if (!query || query.trim() === "") {
-      return res.status(400).json({ success: false, message: "Search query is required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Search query is required" });
     }
 
     // Search for users by name or email (case-insensitive)
     const searchRegex = new RegExp(query, "i");
     const users = await Authentication.find({
       role: "user",
-      $or: [
-        { name: searchRegex },
-        { email: searchRegex }
-      ]
+      $or: [{ name: searchRegex }, { email: searchRegex }],
     }).select("-password");
 
     if (!users || users.length === 0) {
@@ -257,7 +316,7 @@ exports.searchUsers = async (req, res) => {
           accountno: account?.accountno || "N/A",
           balance: account?.balance || 0,
         };
-      })
+      }),
     );
 
     res.status(200).json({ success: true, data: usersWithBalance });

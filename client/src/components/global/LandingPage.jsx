@@ -140,7 +140,7 @@ const LandingPage = () => {
             src={images.Security}
             alt=""
             className="w-[96] rotate-9  "
-            srcset=""
+            srcSet=""
           />
         </div>
       </div>

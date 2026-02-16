@@ -42,13 +42,35 @@ const LoanApplication = () => {
   };
 
   const handleSubmit = async (e) => {
+    // Debug: print currentAcc before submit
+    console.log("[LoanApplication] currentAcc before submit:", currentAcc);
     e.preventDefault();
     setLoading(true);
 
+    // Debug: log currentAcc before submitting
+    console.log("[LoanApplication] currentAcc before submit:", currentAcc);
+
+    // Check for userId before submitting
+    const userId = currentAcc?._id || currentAcc?.userId || "";
+    if (!userId) {
+      // If missing, print raw accountToken from localStorage
+      const rawToken = localStorage.getItem("accountToken");
+      console.warn(
+        "[LoanApplication] userId missing in currentAcc. Raw accountToken:",
+        rawToken,
+      );
+    }
+    if (!userId) {
+      setSuccessMessage(
+        "Error: User ID missing. Please log out and log in again, or contact support.",
+      );
+      setLoading(false);
+      return;
+    }
     const applicationData = {
       ...formData,
       accountno: currentAcc?.accountno,
-      userId: currentAcc?.userId || "",
+      userId,
     };
 
     try {

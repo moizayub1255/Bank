@@ -35,11 +35,52 @@ const SignIn = () => {
         alert("User signed in successfully!");
         // Update auth context with token
         loginAuth(data.token);
-        // Fetch and set account info
-        await handleAccInfo(formData.email);
+        // Set account context with accountToken from login response if present
+        if (data.accountToken) {
+          setAccount(data.accountToken);
+          // Debug: decode and log accountToken
+          try {
+            const decoded = (await import("jwt-decode")).jwtDecode(
+              data.accountToken,
+            );
+            console.log("[SignIn] Decoded accountToken:", decoded);
+            if (!decoded.userId && !decoded._id) {
+              console.warn(
+                "[SignIn] userId/_id missing in decoded accountToken. Raw token:",
+                data.accountToken,
+              );
+            }
+          } catch (err) {
+            console.error(
+              "[SignIn] Error decoding accountToken:",
+              err,
+              data.accountToken,
+            );
+          }
+        } else {
+          // Fallback: Fetch and set account info
+          await handleAccInfo(formData.email);
+        }
         await handleFaceInfo(formData.email);
+        // Decode token to get role
+        let role = null;
+        try {
+          const decoded = data.token
+            ? (await import("jwt-decode")).jwtDecode(data.token)
+            : null;
+          role = decoded?.role;
+        } catch (e) {
+          role = null;
+        }
         setFormData({ email: "", password: "" });
-        navigate("/");
+        // Redirect based on role
+        if (role === "admin") {
+          navigate("/admin");
+        } else if (role === "employee") {
+          navigate("/employee");
+        } else {
+          navigate("/");
+        }
       } else {
         alert(data.message || "Invalid credentials!");
       }

@@ -8,13 +8,15 @@ const AdminLayout = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!currentUser || currentUser.role !== "admin") {
+    if (!currentUser) {
+      navigate("/signin");
+    } else if (currentUser.role !== "admin") {
       navigate("/");
     }
   }, [currentUser, navigate]);
 
   if (!currentUser || currentUser.role !== "admin") {
-    return null; // Prevent rendering before redirect
+    return null;
   }
 
   return (

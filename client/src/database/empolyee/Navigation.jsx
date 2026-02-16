@@ -4,7 +4,7 @@ const EmployeeNavigation = [
   { title: "Deposit Applications", link: "/employee/deposit" },
   { title: "Loan Applications", link: "/employee/loan" },
   // Removed CIBIL Score tab
-  { title: "User Profile", link: "/employee/user-profile/123456" },
+  // { title: "User Profile", link: "user-profile/d/123456" },
   { title: "Users", link: "/employee/users" },
   { title: "User Search", link: "/employee/user-search" },
 ];

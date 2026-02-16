@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useAcc, useBalance } from "../../contexts";
+import { useAcc, useBalance, useAuth } from "../../contexts";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -7,6 +7,7 @@ const MobPay = () => {
   const API_URL = import.meta.env.VITE_API_URL;
   const { balance, setBalance } = useBalance();
   const { currentAcc } = useAcc();
+  const { currentUser } = useAuth();
   const navigate = useNavigate();
 
   const [mobileNumber, setMobileNumber] = useState("");
@@ -17,7 +18,7 @@ const MobPay = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [previousPayments, setPreviousPayments] = useState([]);
 
-  const networks = ["Airtel", "Jio", "Vodafone", "BSNL"];
+  const networks = ["JazzCash", "EasyPaisa", "Meezan Bank", "Allied Bank"];
 
   // Fetch previous mobile payments on mount
   useEffect(() => {
@@ -62,25 +63,31 @@ const MobPay = () => {
     setSuccessMessage("");
     setErrorMessage("");
 
+    // Debug log
+    console.log("currentUser:", currentUser);
+    console.log("currentAcc:", currentAcc);
+
     // Validation
+    if (!currentUser || !(currentUser._id || currentUser.id)) {
+      setErrorMessage("User authentication error. Please log in again.");
+      setLoading(false);
+      return;
+    }
     if (!mobileNumber || mobileNumber.length < 10) {
       setErrorMessage("Please enter a valid 10-digit mobile number");
       setLoading(false);
       return;
     }
-
     if (!amount || amount <= 0) {
       setErrorMessage("Please enter a valid amount");
       setLoading(false);
       return;
     }
-
     if (!network) {
       setErrorMessage("Please select a network");
       setLoading(false);
       return;
     }
-
     const paymentAmount = Number(amount);
     if (paymentAmount > balance) {
       setErrorMessage("Insufficient balance for this transaction");
@@ -91,11 +98,17 @@ const MobPay = () => {
     try {
       const paymentData = {
         accountno: currentAcc?.accountno,
-        userId: currentAcc?.userId || "",
+        userId: currentUser?.id || currentUser?._id || "",
         mobileNumber,
         amount: paymentAmount,
         network,
       };
+
+      if (!paymentData.userId) {
+        setErrorMessage("User ID missing. Please log in again.");
+        setLoading(false);
+        return;
+      }
 
       const response = await axios.post(
         `${API_URL}/api/users/transactions/mobile-pay`,
@@ -103,28 +116,20 @@ const MobPay = () => {
       );
 
       if (response.status === 201 || response.status === 200) {
-        // Update local balance
         setBalance(response.data.updatedBalance);
-
-        // Refresh previous payments
         const updatedPayments = await axios.get(
           `${API_URL}/api/users/mobile-payments/${currentAcc.accountno}`,
         );
         setPreviousPayments(updatedPayments.data);
-
         setSuccessMessage(
           `Mobile payment of ₹${amount} to ${network} successful!`,
         );
-
-        // Reset form
         setMobileNumber("");
         setAmount("");
         setNetwork("");
-
-        // Redirect after 2 seconds
         setTimeout(() => {
-          navigate("/user/dashboard");
-        }, 2000);
+          window.location.reload();
+        }, 1000);
       }
     } catch (error) {
       const errorMsg =
@@ -147,11 +152,6 @@ const MobPay = () => {
             {successMessage && (
               <div className="p-4 rounded-lg bg-green-500/20 text-green-500 font-sfpro">
                 ✓ {successMessage}
-              </div>
-            )}
-            {errorMessage && (
-              <div className="p-4 rounded-lg bg-red-500/20 text-red-500 font-sfpro">
-                ✗ {errorMessage}
               </div>
             )}
 
