@@ -122,7 +122,7 @@ const MobPay = () => {
         );
         setPreviousPayments(updatedPayments.data);
         setSuccessMessage(
-          `Mobile payment of ₹${amount} to ${network} successful!`,
+          `Mobile payment of PKR${amount} to ${network} successful!`,
         );
         setMobileNumber("");
         setAmount("");
@@ -160,7 +160,9 @@ const MobPay = () => {
               <div className="font-sfpro text-white/70 text-sm">
                 Current Wallet Balance
               </div>
-              <div className="font-gotham text-3xl text-green">₹{balance}</div>
+              <div className="font-gotham text-3xl text-green">
+                PKR {balance}
+              </div>
             </div>
 
             {/* Mobile Number */}
@@ -182,7 +184,7 @@ const MobPay = () => {
             {/* Amount */}
             <div className="space-y-2">
               <label className="font-sfpro text-sm text-white/70">
-                Amount (₹)
+                Amount (PKR)
               </label>
               <input
                 type="number"
@@ -255,7 +257,7 @@ const MobPay = () => {
                       {payment.network}
                     </div>
                     <div className="font-gotham text-green text-sm">
-                      -₹{payment.amount}
+                      -PKR {payment.amount}
                     </div>
                   </div>
                   <div className="text-xs font-sfpro text-white/50">

@@ -108,7 +108,7 @@ const LoanDetails = () => {
                 </div>
                 <div>
                   <span className="font-semibold">Loan Amount:</span>{" "}
-                  <span className="text-green">₹{Data.loanamount}</span>
+                  <span className="text-green">PKR {Data.loanamount}</span>
                 </div>
                 <div>
                   <span className="font-semibold">Loan Purpose:</span>{" "}
