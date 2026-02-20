@@ -13,7 +13,12 @@ const Users = () => {
     const fetchAllUsers = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_URL}/api/users/all`);
+        const token = localStorage.getItem("token");
+        const response = await axios.get(`${API_URL}/api/users/all`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (response.data.success) {
           setUsers(response.data.data);
           setError("");
@@ -93,7 +98,8 @@ const Users = () => {
         )}
 
         <div className="mt-6 text-center text-gray-600">
-          Total Users: <span className="font-bold text-black">{users.length}</span>
+          Total Users:{" "}
+          <span className="font-bold text-black">{users.length}</span>
         </div>
       </div>
     </div>

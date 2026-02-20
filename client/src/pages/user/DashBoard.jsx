@@ -22,12 +22,12 @@ const DashBoard = () => {
       link: "/user/loan-application",
       img: images.Loan,
     },
-    {
-      id: 4,
-      title: "Print History",
-      link: "/user/print-history",
-      img: images.PrintHistory,
-    },
+    // {
+    //   id: 4,
+    //   title: "Print History",
+    //   link: "/user/print-history",
+    //   img: images.PrintHistory,
+    // },
   ];
 
   return (

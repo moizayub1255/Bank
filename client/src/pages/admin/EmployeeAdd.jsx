@@ -20,9 +20,22 @@ const EmployeeAdd = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // Fetch allowed roles and positions from backend
-    fetch(`${import.meta.env.VITE_API_URL}/api/admin/employee/roles-positions`)
-      .then((res) => res.json())
+    // Fetch allowed roles and positions from backend with Authorization header
+    const token = localStorage.getItem("token");
+    fetch(
+      `${import.meta.env.VITE_API_URL}/api/admin/employee/roles-positions`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      },
+    )
+      .then((res) => {
+        if (!res.ok)
+          throw new Error("Unauthorized or error fetching roles/positions");
+        return res.json();
+      })
       .then((data) => {
         setRoles(data.roles || []);
         setPositions(data.positions || []);
@@ -40,10 +53,18 @@ const EmployeeAdd = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("No token provided. Please log in as admin.");
+      return;
+    }
     try {
       const response = await fetch(`${API_URL}/api/admin/employee/register`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(formData),
       });
 

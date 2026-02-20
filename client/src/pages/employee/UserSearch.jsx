@@ -24,8 +24,12 @@ const UserSearch = () => {
     try {
       setLoading(true);
       setError("");
+      const token = localStorage.getItem("token");
       const response = await axios.get(`${API_URL}/api/users/search`, {
         params: { query: searchQuery },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (response.data.success) {
@@ -133,7 +137,8 @@ const UserSearch = () => {
             )}
 
             <div className="mt-6 text-center text-gray-600">
-              Results Found: <span className="font-bold text-black">{users.length}</span>
+              Results Found:{" "}
+              <span className="font-bold text-black">{users.length}</span>
             </div>
           </>
         )}

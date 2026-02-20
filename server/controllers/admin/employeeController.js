@@ -58,12 +58,12 @@ exports.registerEmployee = async (req, res) => {
       position,
     });
     await employee.save();
-    // Save to Authentication collection with role 'employee' for dashboard access
+    // Save to Authentication collection with role 'employee' for dashboard access (let schema hash password)
     const authUser = new Authentication({
       name,
       email,
       phone,
-      password: hashedPassword,
+      password, // pass plain password, schema will hash
       gender,
       dob,
       role: "employee",

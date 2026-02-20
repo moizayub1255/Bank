@@ -250,10 +250,8 @@ exports.getAllUsers = async (req, res) => {
   try {
     const { Account } = require("../../models/user/Account");
 
-    // Get all users from Authentication collection (excluding employees and admins)
-    const users = await Authentication.find({ role: "user" }).select(
-      "-password",
-    );
+    // Get all users from Authentication collection (including employees and admins)
+    const users = await Authentication.find({}).select("-password");
 
     if (!users || users.length === 0) {
       return res.status(200).json({ success: true, data: [] });
